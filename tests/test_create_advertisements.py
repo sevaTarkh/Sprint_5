@@ -5,105 +5,77 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-
+from data import Locators, Constants
 
 class TestCreatingAdvertisements:
-    url_doska = "https://qa-desk.stand.praktikum-services.ru/"
-
-    LOCATORS = {
-        'Вход и регистрация':".//button[text()='Вход и регистрация']",
-        'Нет аккаунта': ".//button[text()='Нет аккаунта']",
-        'email': ".//input[@name='email']",
-        'Пароль': ".//input[@name='password']",
-        'Повтор пароля':".//input[@name='submitPassword']",
-        'Создать аккаунт': ".//button[text()='Создать аккаунт']", 
-        'Войти': ".//button[text()='Войти']",
-        'Разместить объявление': ".//button[text()='Разместить объявление']",
-        'Название': "//input[@name='name']",
-        'Категория': "//input[@name='category']/following-sibling::*[1]",
-        'Город': "//input[@name='city']/following-sibling::*[1]",
-        'Описание': "//textarea[@name='description']",
-        'Стоимость': "//input[@name='price']",
-        'Опубликовать': ".//button[text()='Опубликовать']",
-        'Состояние товара - новый': "//label[text()='Новый']/preceding-sibling::*[1]",
-        'Состояние товара - Б/У': "//label[text()='Б/У']/preceding-sibling::*[1]",
-        'Выйти': ".//button[text()='Выйти']",
-        'Профиль': "circleSmall",
-        'User.': "//h3[text()='User.']",
-        'logo': "svgSmall",
-        'Мой профиль':  "//h1[text()='Мой профиль']",
-        'Чтобы разместить объявление, авторизуйтесь': "//form[@class='popUp_shell__LuyqR']//h1[text()='Чтобы разместить объявление, авторизуйтесь']", 
-    }
 
     '''Создание объявления неавторизованным пользователем'''
     def test_create_advertisements_unauthorized_user(self, driver):
-        driver.get(self.url_doska)
-        driver.find_element(By.XPATH, self.LOCATORS['Разместить объявление']).click()
+        driver.get(Constants.url_doska)
+        driver.find_element(By.XPATH, Locators.Add_announcement).click()
 
-        assert driver.find_element(By.XPATH, self.LOCATORS['Чтобы разместить объявление, авторизуйтесь'])
+        assert driver.find_element(By.XPATH, Locators.Error_text_add_announcement)
 
     '''Создание объявления авторизованным пользователем'''
     def test_create_advertisements_user(self, driver):
-        driver.get(self.url_doska)
-        driver.find_element(By.XPATH, self.LOCATORS['Вход и регистрация']).click()
-        driver.find_element(By.XPATH, self.LOCATORS["Нет аккаунта"]).click()
+        driver.get(Constants.url_doska)
+        driver.find_element(By.XPATH, Locators.Login_and_register_button).click()
+        driver.find_element(By.XPATH, Locators.No_accaunt_button).click()
 
         email = f'user_{random.randint(0, 9999)}@mail.ru'
         password = '12345678'
 
-        driver.find_element(By.XPATH, self.LOCATORS["email"]).send_keys(email)
-        driver.find_element(By.XPATH, self.LOCATORS["Пароль"]).send_keys(password)
-        driver.find_element(By.XPATH, self.LOCATORS["Повтор пароля"]).send_keys(password)
+        driver.find_element(By.XPATH, Locators.Email_input).send_keys(email)
+        driver.find_element(By.XPATH, Locators.Password_input).send_keys(password)
+        driver.find_element(By.XPATH, Locators.Confirm_password_input).send_keys(password)
 
-        driver.find_element(By.XPATH, self.LOCATORS["Создать аккаунт"]).click()
+        driver.find_element(By.XPATH, Locators.Create_accaunt_button).click()
 
         WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.XPATH, self.LOCATORS["Выйти"]))
+            EC.visibility_of_element_located((By.XPATH, Locators.Logout_button))
         )
-        assert (driver.find_element(By.CLASS_NAME, self.LOCATORS['Профиль']) and
-                driver.find_element(By.CLASS_NAME, self.LOCATORS['logo']))
+
 
         WebDriverWait(driver, 3).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, self.LOCATORS['Профиль']))
+            EC.visibility_of_element_located((By.CLASS_NAME, Locators.Profile_button))
         )
-        assert (driver.find_element(By.XPATH, self.LOCATORS['User.']) and
-                driver.find_element(By.CLASS_NAME, self.LOCATORS['logo']))
 
-        driver.find_element(By.XPATH, self.LOCATORS['Разместить объявление']).click()
+        driver.find_element(By.XPATH, Locators.Add_announcement).click()
 
         name = ''.join(random.choices(string.ascii_letters, k=5))
         description = ''.join(random.choices(string.ascii_letters, k=5))
         price = random.randint(0, 1000000)
-        cities = ['Москва', 'Санкт-Петербург', 'Новосибирск', 'Екатеринбург', 'Казань', 'Нижний Новгород']
-        categories = ['Авто', 'Книги', 'Садоводство', 'Хобби', 'Технологии']
-        states = [self.LOCATORS['Состояние товара - новый'], self.LOCATORS['Состояние товара - Б/У']]
 
-        random_city = random.choice(cities)
-        random_categoty = random.choice(categories)
+        states = [Locators.New_product_checkbox, Locators.Old_product_checkbox]
+
+        random_city = random.choice(Constants.cities)
+        random_categoty = random.choice(Constants.categories)
         random_state = random.choice(states)
 
-        driver.find_element(By.XPATH, self.LOCATORS['Название']).send_keys(name)
-        driver.find_element(By.XPATH, self.LOCATORS['Описание']).send_keys(description)
-        driver.find_element(By.XPATH, self.LOCATORS['Стоимость']).send_keys(price)
+        driver.find_element(By.XPATH, Locators.Name_input).send_keys(name)
+        driver.find_element(By.XPATH, Locators.Description_input).send_keys(description)
+        driver.find_element(By.XPATH, Locators.Price_input).send_keys(price)
 
-        driver.find_element(By.XPATH, self.LOCATORS['Город']).click()
+        driver.find_element(By.XPATH, Locators.City_input).click()
         driver.find_element(By.XPATH, f"//span[text()='{random_city}']").click()
 
-        driver.find_element(By.XPATH, self.LOCATORS['Категория']).click()
+        driver.find_element(By.XPATH, Locators.Category_input).click()
         driver.find_element(By.XPATH, f"//span[text()='{random_categoty}']").click()
 
-        driver.find_element(By.XPATH, self.LOCATORS['Город']).click()
         driver.find_element(By.XPATH, random_state).click()
         
-        driver.find_element(By.XPATH, self.LOCATORS['Опубликовать']).click()
+        driver.find_element(By.XPATH, Locators.Create_button).click()
         driver.refresh()
 
-        driver.find_element(By.CLASS_NAME, self.LOCATORS["Профиль"]).click()
+        driver.find_element(By.CLASS_NAME, Locators.Profile_button).click()
         WebDriverWait(driver, 5).until(
-            EC.visibility_of_element_located((By.XPATH, self.LOCATORS['Мой профиль']))
+            EC.visibility_of_element_located((By.XPATH, Locators.My_profile_text))
         )
         # прошу подсказку, без слипа не получается пройти тест, явное ожидание также не помогает
         time.sleep(1)
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.XPATH,"//button[@class='editButton']"))
+        )
         assert (driver.find_element(By.XPATH, f"//h2[text()='{name}']") and 
                 driver.find_element(By.XPATH, f"//h3[text()='{random_city}']"))
                 
