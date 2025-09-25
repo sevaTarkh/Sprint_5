@@ -1,71 +1,73 @@
 import random
-import time
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
-from data import Locators, Constants
+from data import Constants
+from locators import Locators
 
 class TestLoginUser:
 
     '''Login пользователя'''
     def test_login_user(self, driver):
         driver.get(Constants.url_doska)
-        driver.find_element(By.XPATH, Locators.Login_and_register_button).click()
-        driver.find_element(By.XPATH, Locators.No_accaunt_button).click()
+        driver.find_element(*Locators.login_and_register_button).click()
+        driver.find_element(*Locators.no_accaunt_button).click()
 
         email = f'user_{random.randint(0, 9999)}@mail.ru'
         password = '12345678'
 
-        driver.find_element(By.XPATH, Locators.Email_input).send_keys(email)
-        driver.find_element(By.XPATH, Locators.Password_input).send_keys(password)
-        driver.find_element(By.XPATH, Locators.Confirm_password_input).send_keys(password)
+        driver.find_element(*Locators.email_input).send_keys(email)
+        driver.find_element(*Locators.password_input).send_keys(password)
+        driver.find_element(*Locators.confirm_password_input).send_keys(password)
 
-        driver.find_element(By.XPATH, Locators.Create_accaunt_button).click()
-
-        WebDriverWait(driver, 3).until(
-            EC.visibility_of_element_located((By.XPATH, Locators.Logout_button))
-        )
-
-        driver.find_element(By.XPATH, Locators.Logout_button).click()
+        driver.find_element(*Locators.create_accaunt_button).click()
 
         WebDriverWait(driver, 3).until(
-            EC.visibility_of_element_located((By.XPATH, Locators.Login_and_register_button))
+            EC.visibility_of_element_located(Locators.logout_button)
         )
-        driver.find_element(By.XPATH, Locators.Login_and_register_button).click()
 
-        driver.find_element(By.XPATH, Locators.Email_input).send_keys(email)
-        driver.find_element(By.XPATH, Locators.Password_input).send_keys(password)
-
-        driver.find_element(By.XPATH, Locators.Login_button).click()
+        driver.find_element(*Locators.logout_button).click()
 
         WebDriverWait(driver, 3).until(
-            EC.visibility_of_element_located((By.XPATH, Locators.username))
+            EC.visibility_of_element_located(Locators.login_and_register_button)
         )
-        assert (driver.find_element(By.XPATH, Locators.username) and
-                driver.find_element(By.CLASS_NAME, Locators.logo))
+        driver.find_element(*Locators.login_and_register_button).click()
+
+        driver.find_element(*Locators.email_input).send_keys(email)
+        driver.find_element(*Locators.password_input).send_keys(password)
+
+        driver.find_element(*Locators.login_button).click()
+
+        WebDriverWait(driver, 3).until(
+            EC.visibility_of_element_located(Locators.user_name)
+        )
+        assert (driver.find_element(*Locators.user_name) and
+                driver.find_element(*Locators.logo))
 
     '''Logout пользователя'''
     def test_logout_user(self, driver):
         driver.get(Constants.url_doska)
-        driver.find_element(By.XPATH, Locators.Login_and_register_button).click()
-        driver.find_element(By.XPATH, Locators.No_accaunt_button).click()
+        driver.find_element(*Locators.login_and_register_button).click()
+        driver.find_element(*Locators.no_accaunt_button).click()
 
         email = f'user_{random.randint(0, 9999)}@mail.ru'
         password = '12345678'
 
-        driver.find_element(By.XPATH, Locators.Email_input).send_keys(email)
-        driver.find_element(By.XPATH, Locators.Password_input).send_keys(password)
-        driver.find_element(By.XPATH, Locators.Confirm_password_input).send_keys(password)
+        driver.find_element(*Locators.email_input).send_keys(email)
+        driver.find_element(*Locators.password_input).send_keys(password)
+        driver.find_element(*Locators.confirm_password_input).send_keys(password)
 
-        driver.find_element(By.XPATH, Locators.Create_accaunt_button).click()
+        driver.find_element(*Locators.create_accaunt_button).click()
 
         WebDriverWait(driver, 3).until(
-            EC.visibility_of_element_located((By.XPATH, Locators.Logout_button))
+            EC.visibility_of_element_located(Locators.logout_button)
         )
 
-        driver.find_element(By.XPATH, Locators.Logout_button).click()
+        driver.find_element(*Locators.logout_button).click()
         WebDriverWait(driver, 3).until(
-            EC.visibility_of_element_located((By.XPATH, Locators.Login_and_register_button))
+            EC.visibility_of_element_located(Locators.login_and_register_button)
         )
-        assert driver.find_element(By.XPATH, Locators.Login_and_register_button)
+        assert driver.find_element(*Locators.login_and_register_button)
